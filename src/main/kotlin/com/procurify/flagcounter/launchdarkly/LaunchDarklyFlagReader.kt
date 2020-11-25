@@ -12,7 +12,7 @@ import org.apache.logging.log4j.LogManager
 import org.apache.logging.log4j.Logger
 
 class LaunchDarklyFlagReader(
-        val apiKey: String,
+        private val apiKey: String,
         private val project: String = "default"
 ) : FlagReader {
 

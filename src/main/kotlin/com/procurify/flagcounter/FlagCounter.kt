@@ -55,9 +55,7 @@ class FlagCounter(
                     if (failedTeamMessages.size > 0) {
                         errorMessager.postOrThrow(
                                 "Failed to send updates for ${
-                                    failedTeamMessages
-                                            .map { it.email }
-                                            .joinToString(separator = "\n")
+                                    failedTeamMessages.joinToString(separator = "\n") { it.email }
                                 }}"
                         )
                     }
