@@ -13,20 +13,21 @@ object FlagEquivalentMessageGenerator {
         // Convert the number of binary flags into the corresponding base ten power
         val baseTenExponent = (flagCount * log10(2.0)).toInt()
 
-        return numberMap[baseTenExponent]?.let {
-            "That's as many configurations as $it!"
-        } ?: findTwoSum(baseTenExponent).let {
-            if (it.size == 2) {
-                val firstString = numberMap[it[0]]
-                val secondString = numberMap[it[1]]
+        val singleStringOrNull by lazy { numberMap[baseTenExponent] }
+        val twoSumOrEmpty by lazy { findTwoSum(baseTenExponent) }
+
+        return when {
+            singleStringOrNull != null -> "That's as many configurations as $singleStringOrNull!"
+            twoSumOrEmpty.size == 2 -> {
+                val firstString = numberMap[twoSumOrEmpty[0]]
+                val secondString = numberMap[twoSumOrEmpty[1]]
                 if (firstString != null && secondString != null) {
                     "That's as many configurations as $firstString multiplied by $secondString!"
                 } else {
-                    null
+                    "That's 10^$baseTenExponent different configurations!"
                 }
-            } else {
-                null
-            } ?: "That's 10^$baseTenExponent different configurations!"
+            }
+            else -> "That's 10^$baseTenExponent different configurations!"
         }
     }
 

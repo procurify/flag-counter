@@ -3,7 +3,7 @@ package com.procurify.flagcounter
 import org.junit.Test
 import kotlin.test.assertEquals
 
-class FlagEquivalentMessageGeneratorTest{
+class FlagEquivalentMessageGeneratorTest {
 
     @Test
     fun `ensure that a number out of bounds returns a generic message`() {

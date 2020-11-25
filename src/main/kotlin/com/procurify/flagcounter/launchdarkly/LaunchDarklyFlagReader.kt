@@ -1,5 +1,6 @@
 package com.procurify.flagcounter.launchdarkly
 
+import arrow.core.Either
 import com.fasterxml.jackson.databind.DeserializationFeature
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.module.kotlin.KotlinModule
@@ -15,13 +16,13 @@ class LaunchDarklyFlagReader(
         private val project: String = "default"
 ) : FlagReader {
 
-    override fun readFlagCount(): FlagSummary {
+    override fun getFlags(): Either<FlagReader.FlagError, FlagResponse> {
         val url = "https://app.launchdarkly.com/api/v2/flags/$project"
         val parameters: Parameters = listOf(
                 "env" to "production",
                 "summary" to true
         )
-        val (_, _, result) = Fuel
+        val (_, response, result) = Fuel
                 .get(url, parameters)
                 .header(Headers.AUTHORIZATION, apiKey)
                 .response()
@@ -29,13 +30,13 @@ class LaunchDarklyFlagReader(
         // TODO Add better logging / error handling
         return result.fold(
                 { value ->
-                    val flagSummary = MAPPER.readValue(value, FlagSummary::class.java)
+                    val flagSummary = MAPPER.readValue(value, FlagResponse::class.java)
                     LOG.debug("Retrieved $flagSummary from LaunchDarkly for project $project")
-                    flagSummary
+                    Either.right(flagSummary)
                 },
                 { error ->
                     LOG.error(error.message)
-                    throw Exception("Failed to Retrieve Flag Count from LaunchDarkly")
+                    Either.left(FlagReader.FlagError(response.statusCode, "Failed to fetch flags for $project"))
                 }
         )
     }
