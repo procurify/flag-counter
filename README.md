@@ -14,13 +14,17 @@ The goal of this project is to help motivate your team to remove unused flags fr
 
 ## Example Slack Message
 
-Once per day, your team will get a message similar to the one below.
+Once per day, your whole team will get a message similar to the one below.
 
 ![Image of Slack Message](images/slack-message.png) 
 
 The string that is included will preferentially pick a single number out of the map in [the Generator](src/main/kotlin/com/procurify/flagcounter/FlagEquivalentMessageGenerator.kt).
 
 If a single number can't be found then two numbers will be multiplied together as in the message above.
+
+You can also configure individual teams to receive a message with more detailed information about the flags they maintain.
+
+![Image of Slack Team Message](images/slack-team-message.png)  
 
 # How to Deploy
 
