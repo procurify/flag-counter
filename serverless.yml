@@ -15,6 +15,7 @@ package:
 functions:
   hello:
     handler: com.procurify.flagcounter.Handler
+    timeout: 12
     events:
       - schedule: cron(0 17 ? * 2-5 *)
     environment:
