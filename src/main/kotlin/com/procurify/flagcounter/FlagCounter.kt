@@ -114,7 +114,7 @@ class FlagCounter(
         // TODO Parameterize link url based on project/environment configuration
         return """Hey ${team.firstName}!
            |Launch Darkly thinks $removeCount of your ${teamFlags.size} flags could be ready for removal.
-           |Take a look https://app.launchdarkly.com/default/production""".trimMargin()
+           |Take a look https://app.launchdarkly.com/default/production/features""".trimMargin()
     }
 
     data class FlagDetailAndStatus(
