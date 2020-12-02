@@ -16,7 +16,7 @@ class Handler : RequestHandler<Map<String, Any>, LambdaResponse> {
         val errorMessager = SlackMessager(System.getenv("SLACK_ERROR_URL"))
         val launchDarklyFlagReader = LaunchDarklyFlagReader(System.getenv("LAUNCHDARKLY_KEY"))
         val teamMessagers = EnvironmentTeamParser.parseJsonIntoTeamsMap(System.getenv("TEAMS_MAP"))
-                .mapKeys { TeamEmail(it.key) }
+                .mapKeys { TeamIdentifier(it.key) }
                 .mapValues { SlackMessager(it.value) }
 
         FlagCounter(

@@ -1,6 +1,5 @@
 package com.procurify.flagcounter
 
-import com.procurify.flagcounter.launchdarkly.*
 import io.mockk.mockk
 import org.junit.Test
 import kotlin.test.assertEquals
@@ -10,10 +9,10 @@ class FlagCounterTest {
 
     @Test
     fun `ensure that grouping by email groups flags for all provided email addresses`() {
-        val alpha = TeamEmail("alpha@test.com")
-        val beta = TeamEmail("beta@test.com")
+        val alpha = TeamIdentifier("alpha@test.com")
+        val beta = TeamIdentifier("beta@test.com")
 
-        val alphaMaintainer = Owner("", alpha.email)
+        val alphaMaintainer = Owner("", alpha.id)
 
         val alphaDetail1 = FlagDetail("ABC", alphaMaintainer, Status.ACTIVE)
         val alphaDetail2 = FlagDetail("DEF", alphaMaintainer, Status.ACTIVE)
@@ -41,7 +40,7 @@ class FlagCounterTest {
         val actualMap = flagCounter.groupFlagsByOwner(flagResponse, teamsMap.keys)
 
         val expectedMap = mapOf(
-                alphaMaintainer to listOf(alphaDetail1, alphaDetail2)
+                alpha to listOf(alphaDetail1, alphaDetail2)
         )
 
         assertEquals(expectedMap, actualMap)

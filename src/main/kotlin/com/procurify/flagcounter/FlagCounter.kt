@@ -11,7 +11,7 @@ class FlagCounter(
         private val totalMessager: Messager,
         private val errorMessager: Messager,
         private val flagReader: FlagReader,
-        private val teamMessagers: Map<TeamEmail, Messager>
+        private val teamMessagers: Map<TeamIdentifier, Messager>
 ) {
     fun fetchFlagsAndPostMessages() {
         flagReader.getFlagDetails().fold(
@@ -32,22 +32,20 @@ class FlagCounter(
 
                     // Message Each team and collect a list of teams that have failed to send
                     // TODO Fold over the messagers to remove the need for this map
-                    val failedTeamMessages = mutableListOf<TeamEmail>()
-                    teamMessagers.forEach { (email, messager) ->
-                        // TODO This filter is not a great solution to matching TeamEmail to FlagMaintainer by email
-                        // This will always return a single entry from the map but requires an extra iteration
-                        teamFlagMap.filter { TeamEmail(it.key.email) == email }.map { (maintainer, teamFlags) ->
+                    val failedTeamMessages = mutableListOf<TeamIdentifier>()
+                    teamMessagers.forEach { (id, messager) ->
+                        teamFlagMap[id]?.let { teamFlags ->
                             if (teamFlags.isNotEmpty()) {
                                 messager
-                                        .postMessage(formatTeamMessage(maintainer, teamFlags))
-                                        .mapLeft { failedTeamMessages.add(email) }
+                                        .postMessage(formatTeamMessage(teamFlags))
+                                        .mapLeft { failedTeamMessages.add(id) }
                             }
                         }
                     }
                     if (failedTeamMessages.size > 0) {
                         errorMessager.postOrThrow(
                                 "Failed to send updates for ${
-                                    failedTeamMessages.joinToString(separator = "\n") { it.email }
+                                    failedTeamMessages.joinToString(separator = "\n") { it.id }
                                 }}"
                         )
                     }
@@ -62,13 +60,14 @@ class FlagCounter(
      */
     fun groupFlagsByOwner(
             flagDetails: List<FlagDetail>,
-            teamEmails: Set<TeamEmail>
-    ): Map<Owner, List<FlagDetail>> = flagDetails
-            .fold(mapOf<Owner, List<FlagDetail>>().toMutableMap()) { acc, flagDetail ->
-                acc[flagDetail.owner] = acc[flagDetail.owner].orEmpty() + flagDetail
+            teamEmails: Set<TeamIdentifier>
+    ): Map<TeamIdentifier, List<FlagDetail>> = flagDetails
+            .fold(mapOf<TeamIdentifier, List<FlagDetail>>().toMutableMap()) { acc, flagDetail ->
+                val emailIdentifier = TeamIdentifier(flagDetail.owner.email)
+                acc[emailIdentifier] = acc[emailIdentifier].orEmpty() + flagDetail
                 acc
             }
-            .filter { teamEmails.contains(TeamEmail(it.key.email)) }
+            .filter { teamEmails.contains(it.key) }
 
     /**
      * Post a message to the [Messager] and throw an exception with the same [message] if the post fails
@@ -85,12 +84,13 @@ class FlagCounter(
     }
 
     /**
-     * Formats a [owner] and [teamFlags] into a message for the team about the flags they maintain
+     * Formats [teamFlags] into a message for the team about the flags they maintain
+     * All flags should have the same owner
      */
-    private fun formatTeamMessage(owner: Owner, teamFlags: List<FlagDetail>): String {
+    private fun formatTeamMessage(teamFlags: List<FlagDetail>): String {
         val removeCount = teamFlags.filter { it.status == Status.REMOVABLE }.size
         // TODO Parameterize link url based on project/environment configuration
-        return """Hey ${owner.name}!
+        return """Hey ${teamFlags.firstOrNull()?.owner?.name ?: "team"}!
            |Launch Darkly thinks $removeCount of your ${teamFlags.size} flags could be ready for removal.
            |Take a look ${flagReader.flagListUrl}""".trimMargin()
     }
@@ -99,8 +99,8 @@ class FlagCounter(
 /**
  * Identifier for a Team
  */
-data class TeamEmail(
-        val email: String
+data class TeamIdentifier(
+        val id: String
 )
 
 
