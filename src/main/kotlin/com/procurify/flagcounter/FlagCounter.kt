@@ -1,8 +1,5 @@
 package com.procurify.flagcounter
 
-import arrow.core.Either
-import com.procurify.flagcounter.launchdarkly.*
-
 /**
  * FlagCounter which fetches flags using a [FlagReader] and messages updates both with a total project count with
  * [totalMessager] and team specific information using [teamMessagers]
@@ -16,44 +13,22 @@ class FlagCounter(
         private val flagReader: FlagReader,
         private val teamMessagers: Map<TeamEmail, Messager>
 ) {
-    fun postFlagUpdate() {
-        flagReader.getFlags().fold(
-                { error ->
-                    errorMessager.postOrThrow("Error fetching flags. Response code ${error.responseCode}")
-                },
-                { flags ->
-                    flagReader.getFlagStatuses().fold(
-                            { error ->
-                                errorMessager.postOrThrow("Error fetching statuses. Response code ${error.responseCode}")
-                            },
-                            { flagStatuses -> postFlagMessages(zipFlagsAndStatuses(flags, flagStatuses)) }
-                    )
-                }
+    fun fetchFlagsAndPostMessages() {
+        flagReader.getFlagDetails().fold(
+                { error -> errorMessager.postOrThrow(error.message) },
+                { flagDetails -> postFlagDetails(flagDetails) }
         )
     }
 
     /**
-     * Zips together the flag details and flag statuses to create a list of a [FlagDetailAndStatus]
+     * TODO Cleanup this method
      */
-    fun zipFlagsAndStatuses(flags: FlagResponse, flagStatuses: FlagStatusResponse): List<FlagDetailAndStatus> {
-        return flags.items.mapNotNull { flag ->
-            flagStatuses.items.find { status ->
-                status._links.parent.href == flag._links.self.href
-            }?.let {
-                FlagDetailAndStatus(
-                        flag.key,
-                        flag._maintainer,
-                        it.name)
-            }
-        }
-    }
-
-    private fun postFlagMessages(flagDetails: List<FlagDetailAndStatus>) {
+    private fun postFlagDetails(flagDetails: List<FlagDetail>) {
         // Post Total Count Update
         totalMessager.postMessage(formatTotalCountMessage(flagDetails.size)).fold(
                 { errorMessager.postOrThrow("Failed to post total count message") },
                 {
-                    val teamFlagMap = groupFlagsByMaintainer(flagDetails, teamMessagers.keys)
+                    val teamFlagMap = groupFlagsByOwner(flagDetails, teamMessagers.keys)
 
                     // Message Each team and collect a list of teams that have failed to send
                     // TODO Fold over the messagers to remove the need for this map
@@ -82,15 +57,15 @@ class FlagCounter(
 
     /**
      * Groups the [FlagDetail] in a list as values to a map keyed by the provided [teamEmails]. If there are maintainers
-     * returned in the [FlagResponse] that are not in the provided [teamEmails], those flags are not added to the map
+     * returned in details that are not in the provided [teamEmails], those flags are not added to the map
      * TODO There is likely a cleaner way to do this without a mutable map
      */
-    fun groupFlagsByMaintainer(
-            flagDetails: List<FlagDetailAndStatus>,
+    fun groupFlagsByOwner(
+            flagDetails: List<FlagDetail>,
             teamEmails: Set<TeamEmail>
-    ): Map<FlagMaintainer, List<FlagDetailAndStatus>> = flagDetails
-            .fold(mapOf<FlagMaintainer, List<FlagDetailAndStatus>>().toMutableMap()) { acc, flagDetail ->
-                acc[flagDetail._maintainer] = acc[flagDetail._maintainer].orEmpty() + flagDetail
+    ): Map<Owner, List<FlagDetail>> = flagDetails
+            .fold(mapOf<Owner, List<FlagDetail>>().toMutableMap()) { acc, flagDetail ->
+                acc[flagDetail.owner] = acc[flagDetail.owner].orEmpty() + flagDetail
                 acc
             }
             .filter { teamEmails.contains(TeamEmail(it.key.email)) }
@@ -109,19 +84,16 @@ class FlagCounter(
         return "There are currently $totalFlagCount flags in the system!\n$comparisonMessage"
     }
 
-    private fun formatTeamMessage(team: FlagMaintainer, teamFlags: List<FlagDetailAndStatus>): String {
-        val removeCount = teamFlags.filter { it.status in setOf(Status.INACTIVE, Status.LAUNCHED) }.size
+    /**
+     * Formats a [owner] and [teamFlags] into a message for the team about the flags they maintain
+     */
+    private fun formatTeamMessage(owner: Owner, teamFlags: List<FlagDetail>): String {
+        val removeCount = teamFlags.filter { it.status == Status.REMOVABLE }.size
         // TODO Parameterize link url based on project/environment configuration
-        return """Hey ${team.firstName}!
+        return """Hey ${owner.name}!
            |Launch Darkly thinks $removeCount of your ${teamFlags.size} flags could be ready for removal.
-           |Take a look https://app.launchdarkly.com/default/production/features""".trimMargin()
+           |Take a look ${flagReader.flagListUrl}""".trimMargin()
     }
-
-    data class FlagDetailAndStatus(
-            val key: String,
-            val _maintainer: FlagMaintainer,
-            val status: Status
-    )
 }
 
 /**
@@ -130,25 +102,5 @@ class FlagCounter(
 data class TeamEmail(
         val email: String
 )
-
-interface Messager {
-    fun postMessage(message: String): Either<MessagerError, Unit>
-
-    data class MessagerError(
-            val message: String
-    )
-}
-
-interface FlagReader {
-
-    fun getFlags(): Either<FlagError, FlagResponse>
-
-    fun getFlagStatuses(): Either<FlagError, FlagStatusResponse>
-
-    data class FlagError(
-            val responseCode: Int,
-            val message: String
-    )
-}
 
 

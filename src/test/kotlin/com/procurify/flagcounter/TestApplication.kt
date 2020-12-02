@@ -24,7 +24,7 @@ class TestApplication {
                 errorMessager = mockk(),
                 flagReader = launchDarklyFlagReader,
                 teamMessagers = mapOf()
-        ).postFlagUpdate()
+        ).fetchFlagsAndPostMessages()
     }
 
     /**

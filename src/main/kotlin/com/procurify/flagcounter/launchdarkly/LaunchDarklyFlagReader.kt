@@ -8,22 +8,31 @@ import com.fasterxml.jackson.module.kotlin.KotlinModule
 import com.github.kittinunf.fuel.Fuel
 import com.github.kittinunf.fuel.core.Headers
 import com.github.kittinunf.fuel.core.Parameters
-import com.procurify.flagcounter.FlagReader
+import com.procurify.flagcounter.*
 import org.apache.logging.log4j.LogManager
 import org.apache.logging.log4j.Logger
 
 class LaunchDarklyFlagReader(
         private val apiKey: String,
-        // TODO Add this to method params
         private val project: String = "default",
-        // TODO Add this to method params
         private val environment: String = "production"
 ) : FlagReader {
 
-    override fun getFlags(): Either<FlagReader.FlagError, FlagResponse> {
-        val url = "https://app.launchdarkly.com/api/v2/flags/$project"
+    override val flagListUrl: String by lazy { "https://app.launchdarkly.com/$project/$environment/features" }
+
+    override fun getFlagDetails(): Either<FlagError, List<FlagDetail>> {
+        return getFlags().map { flags ->
+            getFlagStatuses().fold<List<FlagDetail>>(
+                    { flagError -> return Either.left(flagError) },
+                    { flagStatuses -> return Either.right(zipFlagsAndStatuses(flags, flagStatuses)) }
+            )
+        }
+    }
+
+    private fun getFlags(): Either<FlagError, LDFlagResponse> {
+        val url = "$BASE_URL/flags/$project"
         val parameters: Parameters = listOf(
-                "env" to "production",
+                "env" to environment,
                 "summary" to true
         )
         val (_, response, result) = Fuel
@@ -33,19 +42,19 @@ class LaunchDarklyFlagReader(
 
         return result.fold(
                 { value ->
-                    val flagResponse = MAPPER.readValue(value, FlagResponse::class.java)
+                    val flagResponse = MAPPER.readValue(value, LDFlagResponse::class.java)
                     LOG.debug("Fetched ${flagResponse.totalCount} flags from LaunchDarkly for project $project")
                     Either.right(flagResponse)
                 },
                 { error ->
                     LOG.error(error.message)
-                    Either.left(FlagReader.FlagError(response.statusCode, "Failed to fetch flags for $project"))
+                    Either.left(FlagError("Failed to fetch flags for $project, status code ${response.statusCode}"))
                 }
         )
     }
 
-    override fun getFlagStatuses(): Either<FlagReader.FlagError, FlagStatusResponse> {
-        val url = "https://app.launchdarkly.com/api/v2/flag-statuses/$project/$environment"
+    private fun getFlagStatuses(): Either<FlagError, LDFlagStatusResponse> {
+        val url = "$BASE_URL/flag-statuses/$project/$environment"
         val (_, response, result) = Fuel
                 .get(url)
                 .header(Headers.AUTHORIZATION, apiKey)
@@ -53,24 +62,44 @@ class LaunchDarklyFlagReader(
 
         return result.fold(
                 { value ->
-                    val statusResponse = MAPPER.readValue(value, FlagStatusResponse::class.java)
+                    val statusResponse = MAPPER.readValue(value, LDFlagStatusResponse::class.java)
                     LOG.debug("Retrieved ${statusResponse.items} statuses from LaunchDarkly for project $project")
                     Either.right(statusResponse)
                 },
                 { error ->
                     LOG.error(error.message)
-                    Either.left(FlagReader.FlagError(response.statusCode, "Failed to fetch statuses for $project"))
+                    Either.left(FlagError("Failed to fetch statuses for $project, status code ${response.statusCode}"))
                 }
         )
     }
 
-
     companion object {
+        const val BASE_URL = "https://app.launchdarkly.com/api/v2"
         val LOG: Logger = LogManager.getLogger(this::class.java)
         val MAPPER: ObjectMapper = ObjectMapper()
                 .enable(MapperFeature.ACCEPT_CASE_INSENSITIVE_ENUMS)
                 .registerModule(KotlinModule())
                 .configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
+
+        /**
+         * Zips together the flag details and flag statuses to create a list of a [FlagDetail]
+         */
+        fun zipFlagsAndStatuses(flags: LDFlagResponse, flagStatuses: LDFlagStatusResponse): List<FlagDetail> {
+            return flags.items.mapNotNull { flag ->
+                flagStatuses.items.find { status ->
+                    status.links.parent.href == flag.links.self.href
+                }?.let { status ->
+                    FlagDetail(
+                            key = flag.key,
+                            owner = Owner(flag.maintainer.firstName, flag.maintainer.email),
+                            status = if (status.name in listOf(LDStatus.LAUNCHED, LDStatus.INACTIVE)) {
+                                Status.REMOVABLE
+                            } else {
+                                Status.ACTIVE
+                            }
+                    )
+                }
+            }
+        }
     }
 }
-

@@ -26,7 +26,7 @@ class Handler : RequestHandler<Map<String, Any>, LambdaResponse> {
                 // TODO Create Map for per channel messaging
                 teamMessagers = teamMessagers
         )
-                .postFlagUpdate()
+                .fetchFlagsAndPostMessages()
 
         return LambdaResponse()
     }
