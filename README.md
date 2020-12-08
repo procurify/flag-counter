@@ -14,13 +14,17 @@ The goal of this project is to help motivate your team to remove unused flags fr
 
 ## Example Slack Message
 
-Once per day, your team will get a message similar to the one below.
+Once per day, your whole team will get a message similar to the one below.
 
 ![Image of Slack Message](images/slack-message.png) 
 
 The string that is included will preferentially pick a single number out of the map in [the Generator](src/main/kotlin/com/procurify/flagcounter/FlagEquivalentMessageGenerator.kt).
 
 If a single number can't be found then two numbers will be multiplied together as in the message above.
+
+You can also configure individual teams to receive a message with more detailed information about the flags they maintain.
+
+![Image of Slack Team Message](images/slack-team-message.png)  
 
 # How to Deploy
 
@@ -30,7 +34,33 @@ If a single number can't be found then two numbers will be multiplied together a
 
 2. Create a `Reader` access token for your LaunchDarkly account [here](https://app.launchdarkly.com/settings/authorization). Export the token as an environment variable named `LAUNCHDARKLY_KEY`
 
-3. Install an `Incoming Webhooks` from the Slack [App Directory](https://slack.com/apps/A0F7XDUAZ-incoming-webhooks) and configure it to the channel you want to see the flag update in. Export the `Webhook URL` as an environment variable named `SLACK_URL`    
+3. Install an `Incoming Webhooks` from the Slack [App Directory](https://slack.com/apps/A0F7XDUAZ-incoming-webhooks) and configure it to the channel you want to see the main flag count update in. Export the `Webhook URL` as an environment variable named `SLACK_URL`
+
+4. Install an `Incoming Webhooks` from the Slack App Directory and configure it to the channel you want to see any error messages in. Export the `Webhook URL` as an environment variable named `SLACK_ERROR_URL`
+
+5. If you would like to notify individual teams of the number of flags that they own (are the maintainer for), create a JSON object which maps the team's email address used in LaunchDarkly to the `Webhook URL` for the team. For example, to configure two teams
+```json
+{
+  "teamsList": [
+    {
+      "email":"firstTeam@company.com",
+      "url": "<slack webhook url>"
+    },
+    {
+      "email":"secondTeam@company.com",
+      "url":"<slack webhook url>"
+    }
+  ]
+}
+```
+
+This object should be stored as a string and exported as an environment variable called `TEAMS_MAP`
+
+```
+export TEAMS_MAP='{"teamsList":[{"email":"firstTeam@company.com","url":"<slack webhook url>"},{"email":"secondTeam@company.com","url":"<slack webhook url>"}]}' 
+```
+
+    
 
 ## Build the JAR
 
