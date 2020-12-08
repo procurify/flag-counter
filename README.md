@@ -8,13 +8,13 @@ Built from [this template](https://github.com/serverless/serverless/tree/master/
 
 # How it Works
 
-The Flag Counter runs daily by default to pull a count of the LaunchDarkly flags that you have in your system and post that count to Slack. 
+The Flag Counter runs weekly by default to pull a count of the LaunchDarkly flags that you have in your system and post that count to Slack. 
 It adds a small sentence to help visualize the large number of configurations that can result from even a handful of flags. 
 The goal of this project is to help motivate your team to remove unused flags from your system to reduce the number of potential configurations of your application.
 
 ## Example Slack Message
 
-Once per day, your whole team will get a message similar to the one below.
+On a preset schedule, your whole team will get a message similar to the one below.
 
 ![Image of Slack Message](images/slack-message.png) 
 
@@ -60,7 +60,7 @@ This object should be stored as a string and exported as an environment variable
 export TEAMS_MAP='{"teamsList":[{"email":"firstTeam@company.com","url":"<slack webhook url>"},{"email":"secondTeam@company.com","url":"<slack webhook url>"}]}' 
 ```
 
-    
+6. If you would like a specific schedule for your team to be sent notifications, you can define this schedule following the [AWS schedule syntax](https://docs.aws.amazon.com/AmazonCloudWatch/latest/events/ScheduledEvents.html), and export it as an environment variable named `SCHEDULE`. The default schedule for notifications will be once weekly on Mondays at 17:00 UTC.
 
 ## Build the JAR
 
