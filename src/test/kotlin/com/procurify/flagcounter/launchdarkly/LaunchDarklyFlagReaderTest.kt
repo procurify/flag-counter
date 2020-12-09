@@ -3,8 +3,8 @@ package com.procurify.flagcounter.launchdarkly
 import com.procurify.flagcounter.FlagDetail
 import com.procurify.flagcounter.Owner
 import com.procurify.flagcounter.Status
-import org.junit.Test
-import kotlin.test.assertEquals
+import org.junit.jupiter.api.Assertions.assertEquals
+import org.junit.jupiter.api.Test
 
 /**
  * TODO Tests with mocked responses for error handling
