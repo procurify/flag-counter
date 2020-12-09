@@ -1,8 +1,8 @@
 package com.procurify.flagcounter
 
 import io.mockk.mockk
-import org.junit.Test
-import kotlin.test.assertEquals
+import org.junit.jupiter.api.Assertions.assertEquals
+import org.junit.jupiter.api.Test
 
 // TODO Add better testing for the FlagCounter
 class FlagCounterTest {
