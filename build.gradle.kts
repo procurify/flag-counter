@@ -50,12 +50,31 @@ dependencies {
 
     kapt("io.arrow-kt:arrow-meta:$arrowVersion")
 
-    testImplementation(kotlin("test-junit"))
+    testImplementation("org.junit.jupiter:junit-jupiter-api:5.6.0")
+    testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine")
     testImplementation("io.mockk:mockk:1.10.0")
 }
 
-tasks.build {
-    finalizedBy(getTasksByName("shadowJar", false))
+sourceSets {
+    main {
+        java.srcDir("src/main/kotlin")
+    }
+    test {
+        java.srcDir("src/test/kotlin")
+    }
+}
+
+tasks {
+    test {
+        useJUnitPlatform()
+        testLogging.showExceptions = true
+        testLogging {
+            events("passed", "skipped", "failed")
+        }
+    }
+    build {
+        finalizedBy(getTasksByName("shadowJar", false))
+    }
 }
 
 task<Exec>("deploy") {
