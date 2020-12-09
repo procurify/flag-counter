@@ -88,10 +88,9 @@ class FlagCounter(
      * All flags should have the same owner
      */
     private fun formatTeamMessage(teamFlags: List<FlagDetail>): String {
-        val removeCount = removableFlagCount(teamFlags) 
         // TODO Parameterize link url based on project/environment configuration
         return """Hey ${teamFlags.firstOrNull()?.owner?.name ?: "team"}!
-           |Launch Darkly thinks $removeCount of your ${teamFlags.size} flags could be ready for removal.
+           |Launch Darkly thinks ${removableFlagCount(teamFlags)} of your ${teamFlags.size} flags could be ready for removal.
            |Take a look ${flagReader.flagListUrl}""".trimMargin()
     }
 
