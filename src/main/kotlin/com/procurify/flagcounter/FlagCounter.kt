@@ -35,7 +35,7 @@ class FlagCounter(
                     val failedTeamMessages = mutableListOf<TeamIdentifier>()
                     teamMessagers.forEach { (id, messager) ->
                         teamFlagMap[id]?.let { teamFlags ->
-                            if (teamFlags.isNotEmpty()) {
+                            if (teamFlags.isNotEmpty() && removableFlagCount(teamFlags) > 0) {
                                 messager
                                         .postMessage(formatTeamMessage(teamFlags))
                                         .mapLeft { failedTeamMessages.add(id) }
@@ -88,11 +88,14 @@ class FlagCounter(
      * All flags should have the same owner
      */
     private fun formatTeamMessage(teamFlags: List<FlagDetail>): String {
-        val removeCount = teamFlags.filter { it.status == Status.REMOVABLE }.size
         // TODO Parameterize link url based on project/environment configuration
         return """Hey ${teamFlags.firstOrNull()?.owner?.name ?: "team"}!
-           |Launch Darkly thinks $removeCount of your ${teamFlags.size} flags could be ready for removal.
+           |Launch Darkly thinks ${removableFlagCount(teamFlags)} of your ${teamFlags.size} flags could be ready for removal.
            |Take a look ${flagReader.flagListUrl}""".trimMargin()
+    }
+
+    private fun removableFlagCount(flags: List<FlagDetail>): Int {
+        return flags.filter { it.status == Status.REMOVABLE }.size
     }
 }
 
