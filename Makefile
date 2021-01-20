@@ -1,18 +1,15 @@
 deploy:
-	./gradlew clean test build
-	serverless deploy
+	@./gradlew clean build
+	@serverless deploy
 
 build:
-	./gradlew clean test build
+	@./gradlew clean build
 
 docker-build:
-	docker build -t flagcounter:latest .
+	@docker build -t flagcounter:latest .
 
-docker-save:
-	docker run --rm -v $(PWD)/build:/build --entrypoint=/bin/bash flagcounter:latest /bin/bash -c 'cp /app/*.jar /build/'
-
-run: docker-build docker-save
-	docker run -it --rm -v $(PWD)/build:/build --entrypoint=/bin/bash flagcounter:latest
+docker-save: docker-build
+	@docker run --rm -v $(PWD)/build:/build --entrypoint="/usr/bin/bash" flagcounter:latest -c "cp /app/*.jar /build/"
 
 test:
-	./gradlew test
+	@./gradlew test
