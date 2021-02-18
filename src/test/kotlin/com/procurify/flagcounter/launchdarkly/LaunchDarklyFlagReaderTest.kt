@@ -53,4 +53,38 @@ class LaunchDarklyFlagReaderTest {
 
         assertEquals(expectedZipped, actualZipped)
     }
+
+    @Test
+    fun `zipping handles maintainers with null first names`() {
+
+        val keyAlpha = "alpha"
+
+        val maintainer = LDFlagMaintainer(null, "")
+
+        val status = LDStatus.LAUNCHED
+
+        val referenceAlpha = LDFlagReference("/path/alpha")
+        val flagResponse = LDFlagResponse(
+                totalCount = 1,
+                items = listOf(
+                        LDFlagDetail(keyAlpha, maintainer, LDFlagLinks(referenceAlpha)),
+                )
+        )
+
+        val flagStatusResponse = LDFlagStatusResponse(
+                listOf(
+                        LDFlagStatus(status, LDStatusLinks(referenceAlpha))
+                )
+        )
+
+        val actualZipped = LaunchDarklyFlagReader.zipFlagsAndStatuses(flagResponse, flagStatusResponse)
+
+        val expectedOwner = Owner(maintainer.firstName, maintainer.email)
+        val expectedStatus = Status.REMOVABLE
+        val expectedZipped = listOf(
+                FlagDetail(keyAlpha, expectedOwner, expectedStatus),
+        )
+
+        assertEquals(expectedZipped, actualZipped)
+    }
 }
