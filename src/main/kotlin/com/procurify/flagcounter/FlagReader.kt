@@ -29,7 +29,7 @@ data class FlagDetail(
  * Owner/Maintainer of a flag
  */
 data class Owner(
-        val name: String,
+        val name: String?,
         val email: String
 )
 

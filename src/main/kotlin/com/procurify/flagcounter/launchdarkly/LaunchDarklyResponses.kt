@@ -25,7 +25,7 @@ data class LDFlagDetail(
  * Feature flag maintainer
  */
 data class LDFlagMaintainer(
-        val firstName: String,
+        val firstName: String?,
         val email: String
 )
 
