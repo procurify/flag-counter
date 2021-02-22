@@ -64,9 +64,13 @@ export TEAMS_MAP='{"teamsList":[{"email":"firstTeam@company.com","url":"<slack w
 
 ## Build the JAR
 
+### Build using local machine
 1. Ensure that you have Java installed on your machine.
-
 2. Run `make build` which will invoke gradle, run the tests, and build the JAR
+
+### Build using Docker
+1. `make docker-save`
+2. jar files will be saved to the build folder.
 
 ## Deploy to AWS
 
