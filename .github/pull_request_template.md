@@ -25,8 +25,8 @@ _Put an `x` in the boxes that apply. You can also fill these out after creating 
 
 
 ## Todos
-- [] Tests
-- Documentaiton
+- [ ] Tests
+- [ ] Documentaiton
 
 
 ## Screenshots
