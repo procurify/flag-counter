@@ -7,7 +7,7 @@ Please take some time to read the following guidelines we've set to make the con
 By participating and contributing to this project, you agree to uphold our [Code of Conduct](https://github.com/procurify/flag-counter/blob/main/CODE_OF_CONDUCT.md).
 
 ## Getting started
-Please use the search to see if any exisitng Issues or PRs match your problem before creating your own
+Please use the search to see if any exisiting Issues or PRs match your problem before creating your own
 
 We try to resolve issues in a timely manner, but if you feel like your issue is taking too long, feel free to leave a comment or ping a reminder to draw attention
 
