@@ -4,7 +4,7 @@ Welcome and thank you for considering to contribute to Procurify's open source p
 Please take some time to read the following guidelines we've set to make the contribution process easy and accessible for everyone involved. 
 
 ## Code of Conduct
-By participating and contributing to this project, you agree to uphold our [Code of Conduct](https://github.com/procurify/flag-counter/master/CODE-OF-CONDUCT.md).
+By participating and contributing to this project, you agree to uphold our [Code of Conduct](https://github.com/procurify/flag-counter/blob/main/CODE_OF_CONDUCT.md).
 
 ## Getting started
 Please use the search to see if any exisitng Issues or PRs match your problem before creating your own
