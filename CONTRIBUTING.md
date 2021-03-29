@@ -14,7 +14,7 @@ We try to resolve issues in a timely manner, but if you feel like your issue is 
 ## Issue tracker
 If you wish to add changes to the core functionality of the project please email our development team at development@procurify.com
 
-If you find an issue that matches the one you're facing, feel free to comment if your environment differs from the one stated in the issue. Otherwise, adding a [reaction](https://github.blog/2016-03-10-add-reactions-to-pull-requests-issues-and-comments/) is sufficient enough for use to know.
+If you find an issue that matches the one you're facing, feel free to comment if your environment differs from the one stated in the issue. Otherwise, adding a [reaction](https://github.blog/2016-03-10-add-reactions-to-pull-requests-issues-and-comments/) is sufficient enough for us to know.
 
 Please follow the steps indicated in our [Issue Tracking Template](https://github.com/procurify/flag-counter/blob/main/.github/ISSUE_TEMPLATE/issue-report.md) when creating an issue. 
 
