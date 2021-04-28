@@ -21,8 +21,8 @@ class FlagEquivalentMessageGeneratorTest {
 
     @Test
     fun `ensure that two messages are properly joined when a match isn't found`() {
-        val expected = "That's as many configurations as the number of chemical elements on the periodic table multiplied by the total number of different possible keys in the AES 192-bit key space!"
-        val actual = FlagEquivalentMessageGenerator.getNearestNumberMessage(199)
+        val expected = "That's as many configurations as the possible combinations for the Megaminx multiplied by the largest known prime factor found by ECM factorization!"
+        val actual = FlagEquivalentMessageGenerator.getNearestNumberMessage(466)
         assertEquals(expected, actual)
     }
 }
