@@ -20,6 +20,8 @@ class LaunchDarklyFlagReaderTest {
 
         val maintainer = LDFlagMaintainer("", "")
 
+        val creationDate = System.currentTimeMillis()
+
         val status = LDStatus.LAUNCHED
 
         val referenceAlpha = LDFlagReference("/path/alpha")
@@ -28,9 +30,9 @@ class LaunchDarklyFlagReaderTest {
         val flagResponse = LDFlagResponse(
                 totalCount = 3,
                 items = listOf(
-                        LDFlagDetail(keyAlpha, maintainer, LDFlagLinks(referenceAlpha)),
-                        LDFlagDetail(keyBeta, maintainer, LDFlagLinks(referenceBeta)),
-                        LDFlagDetail(keyGamma, maintainer, LDFlagLinks(referenceGamma))
+                        LDFlagDetail(keyAlpha, maintainer, LDFlagLinks(referenceAlpha), creationDate),
+                        LDFlagDetail(keyBeta, maintainer, LDFlagLinks(referenceBeta), creationDate),
+                        LDFlagDetail(keyGamma, maintainer, LDFlagLinks(referenceGamma), creationDate)
                 )
         )
 
@@ -47,8 +49,8 @@ class LaunchDarklyFlagReaderTest {
         val expectedOwner = Owner(maintainer.firstName, maintainer.email)
         val expectedStatus = Status.REMOVABLE
         val expectedZipped = listOf(
-                FlagDetail(keyAlpha, expectedOwner, expectedStatus),
-                FlagDetail(keyBeta, expectedOwner, expectedStatus),
+                FlagDetail(keyAlpha, expectedOwner, expectedStatus, creationDate),
+                FlagDetail(keyBeta, expectedOwner, expectedStatus, creationDate),
         )
 
         assertEquals(expectedZipped, actualZipped)
@@ -61,13 +63,15 @@ class LaunchDarklyFlagReaderTest {
 
         val maintainer = LDFlagMaintainer(null, "")
 
+        val creationDate = System.currentTimeMillis()
+
         val status = LDStatus.LAUNCHED
 
         val referenceAlpha = LDFlagReference("/path/alpha")
         val flagResponse = LDFlagResponse(
                 totalCount = 1,
                 items = listOf(
-                        LDFlagDetail(keyAlpha, maintainer, LDFlagLinks(referenceAlpha)),
+                        LDFlagDetail(keyAlpha, maintainer, LDFlagLinks(referenceAlpha), creationDate),
                 )
         )
 
@@ -82,7 +86,7 @@ class LaunchDarklyFlagReaderTest {
         val expectedOwner = Owner(maintainer.firstName, maintainer.email)
         val expectedStatus = Status.REMOVABLE
         val expectedZipped = listOf(
-                FlagDetail(keyAlpha, expectedOwner, expectedStatus),
+                FlagDetail(keyAlpha, expectedOwner, expectedStatus, creationDate),
         )
 
         assertEquals(expectedZipped, actualZipped)

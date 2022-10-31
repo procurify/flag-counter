@@ -96,7 +96,8 @@ class LaunchDarklyFlagReader(
                                 Status.REMOVABLE
                             } else {
                                 Status.ACTIVE
-                            }
+                            },
+                            creationDate = flag.creationDate
                     )
                 }
             }
