@@ -14,6 +14,7 @@ class TestApplication {
      * Ignored since it posts to Slack
      */
     @Test
+    @Disabled
     fun `Test Implementation End to End`() {
         val slackMessager = SlackMessager(System.getenv("SLACK_URL"))
         val launchDarklyFlagReader = LaunchDarklyFlagReader(System.getenv("LAUNCHDARKLY_KEY"))
