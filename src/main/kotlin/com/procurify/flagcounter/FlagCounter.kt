@@ -1,7 +1,5 @@
 package com.procurify.flagcounter
 
-import com.procurify.flagcounter.FlagCounter.Companion.getMedianAgeInDays
-
 /**
  * FlagCounter which fetches flags using a [FlagReader] and messages updates both with a total project count with
  * [totalMessager] and team specific information using [teamMessagers]
@@ -110,15 +108,19 @@ class FlagCounter(
     companion object {
 
         private const val MILLISECONDS_IN_A_DAY = 1000 * 60 * 60 * 24
-        fun List<FlagDetail>.getMedianAgeInDays(): Long = this.sortedBy { it.creationDate }.let { flagDetails ->
-            if (flagDetails.size % 2 == 0) {
-                (flagDetails[flagDetails.size / 2].creationDate + flagDetails[flagDetails.size / 2 - 1].creationDate) / 2
-            } else {
-                flagDetails[flagDetails.size / 2].creationDate
-            }.let {
-                (System.currentTimeMillis() - it) / MILLISECONDS_IN_A_DAY
+        fun List<FlagDetail>.getMedianAgeInDays(): Long = this
+            .map { it.creationDate }
+            .sorted()
+            .let { creationDates ->
+                (System.currentTimeMillis() - creationDates.getMedian()) / MILLISECONDS_IN_A_DAY
             }
-        }
+
+        private fun List<Long>.getMedian() =
+            if (this.size % 2 == 0) {
+                (this[this.size / 2] + this[this.size / 2 - 1]) / 2
+            } else {
+                this[this.size / 2]
+            }
     }
 }
 
