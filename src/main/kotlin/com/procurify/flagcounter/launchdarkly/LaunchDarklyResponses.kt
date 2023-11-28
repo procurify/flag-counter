@@ -16,7 +16,7 @@ data class LDFlagResponse(
 data class LDFlagDetail(
         val key: String,
         @JsonProperty("_maintainer")
-        val maintainer: LDFlagMaintainer,
+        val maintainer: LDFlagMaintainer?,
         @JsonProperty("_links")
         val links: LDFlagLinks
 )
