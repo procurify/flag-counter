@@ -2,7 +2,6 @@ package com.procurify.flagcounter
 
 import com.procurify.flagcounter.launchdarkly.LaunchDarklyFlagReader
 import com.procurify.flagcounter.slack.SlackMessager
-import io.mockk.mockk
 import org.junit.jupiter.api.Disabled
 import org.junit.jupiter.api.Test
 
@@ -14,14 +13,13 @@ class TestApplication {
      * Ignored since it posts to Slack
      */
     @Test
-    @Disabled
     fun `Test Implementation End to End`() {
         val slackMessager = SlackMessager(System.getenv("SLACK_URL"))
         val launchDarklyFlagReader = LaunchDarklyFlagReader(System.getenv("LAUNCHDARKLY_KEY"))
 
         FlagCounter(
                 totalMessager = slackMessager,
-                errorMessager = mockk(),
+                errorMessager = slackMessager,
                 flagReader = launchDarklyFlagReader,
                 teamMessagers = mapOf()
         ).fetchFlagsAndPostMessages()
