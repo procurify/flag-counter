@@ -3,13 +3,13 @@ import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 import com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar
 
 val arrowVersion = "0.11.0"
-val jacksonVersion = "2.11.0"
+val jacksonVersion = "2.12.6"
 val fuelVersion = "2.3.0"
-val kotlinVersion = "1.4.20"
+val kotlinVersion = "1.4.32"
 
 plugins {
-    kotlin("jvm") version "1.4.20"
-    kotlin("kapt") version "1.4.20"
+    kotlin("jvm") version "1.4.32"
+    kotlin("kapt") version "1.4.32"
     `maven-publish`
     id("io.spring.dependency-management") version ("1.0.9.RELEASE")
     id("com.github.johnrengelman.shadow") version ("6.0.0")
@@ -35,8 +35,8 @@ repositories {
 dependencies {
     implementation(kotlin("stdlib", kotlinVersion))
 
-    api("com.amazonaws:aws-lambda-java-core:1.2.1")
-    api("com.amazonaws:aws-lambda-java-log4j2:1.2.0")
+    api("com.amazonaws:aws-lambda-java-core:1.2.2")
+    api("com.amazonaws:aws-lambda-java-log4j2:1.5.1")
     api("com.fasterxml.jackson.core:jackson-core:$jacksonVersion")
     api("com.fasterxml.jackson.core:jackson-databind:$jacksonVersion")
     api("com.fasterxml.jackson.core:jackson-annotations:$jacksonVersion")

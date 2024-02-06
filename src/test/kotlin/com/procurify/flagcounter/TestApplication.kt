@@ -2,7 +2,6 @@ package com.procurify.flagcounter
 
 import com.procurify.flagcounter.launchdarkly.LaunchDarklyFlagReader
 import com.procurify.flagcounter.slack.SlackMessager
-import io.mockk.mockk
 import org.junit.jupiter.api.Disabled
 import org.junit.jupiter.api.Test
 
@@ -21,7 +20,7 @@ class TestApplication {
 
         FlagCounter(
                 totalMessager = slackMessager,
-                errorMessager = mockk(),
+                errorMessager = slackMessager,
                 flagReader = launchDarklyFlagReader,
                 teamMessagers = mapOf()
         ).fetchFlagsAndPostMessages()

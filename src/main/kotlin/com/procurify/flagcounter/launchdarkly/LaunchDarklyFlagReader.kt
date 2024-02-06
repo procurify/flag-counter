@@ -4,7 +4,7 @@ import arrow.core.Either
 import com.fasterxml.jackson.databind.DeserializationFeature
 import com.fasterxml.jackson.databind.MapperFeature
 import com.fasterxml.jackson.databind.ObjectMapper
-import com.fasterxml.jackson.module.kotlin.KotlinModule
+import com.fasterxml.jackson.module.kotlin.registerKotlinModule
 import com.github.kittinunf.fuel.Fuel
 import com.github.kittinunf.fuel.core.Headers
 import com.github.kittinunf.fuel.core.Parameters
@@ -78,7 +78,7 @@ class LaunchDarklyFlagReader(
         val LOG: Logger = LogManager.getLogger(this::class.java)
         val MAPPER: ObjectMapper = ObjectMapper()
                 .enable(MapperFeature.ACCEPT_CASE_INSENSITIVE_ENUMS)
-                .registerModule(KotlinModule())
+                .registerKotlinModule()
                 .configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
 
         /**

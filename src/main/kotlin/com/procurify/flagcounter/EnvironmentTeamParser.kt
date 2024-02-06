@@ -2,7 +2,7 @@ package com.procurify.flagcounter
 
 import com.fasterxml.jackson.databind.DeserializationFeature
 import com.fasterxml.jackson.databind.ObjectMapper
-import com.fasterxml.jackson.module.kotlin.KotlinModule
+import com.fasterxml.jackson.module.kotlin.registerKotlinModule
 
 /**
  * Object for parsing JSON in Env var into a map of teams to webhook URLs
@@ -36,7 +36,7 @@ object EnvironmentTeamParser {
             }
 
     private val MAPPER: ObjectMapper = ObjectMapper()
-            .registerModule(KotlinModule())
+            .registerKotlinModule()
             .configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
 
     private data class TeamConfigList(
