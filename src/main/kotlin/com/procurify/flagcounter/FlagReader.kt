@@ -22,7 +22,8 @@ interface FlagReader {
 data class FlagDetail(
         val key: String,
         val owner: Owner,
-        val status: Status
+        val status: Status,
+        val creationDate: Long
 )
 
 /**

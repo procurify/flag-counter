@@ -17,12 +17,15 @@ class TestApplication {
     fun `Test Implementation End to End`() {
         val slackMessager = SlackMessager(System.getenv("SLACK_URL"))
         val launchDarklyFlagReader = LaunchDarklyFlagReader(System.getenv("LAUNCHDARKLY_KEY"))
+        val teamMessagers = EnvironmentTeamParser.parseJsonIntoTeamsMap(System.getenv("TEAMS_MAP"))
+            .mapKeys { TeamIdentifier(it.key) }
+            .mapValues { SlackMessager(it.value) }
 
         FlagCounter(
                 totalMessager = slackMessager,
                 errorMessager = slackMessager,
                 flagReader = launchDarklyFlagReader,
-                teamMessagers = mapOf()
+                teamMessagers = teamMessagers
         ).fetchFlagsAndPostMessages()
     }
 

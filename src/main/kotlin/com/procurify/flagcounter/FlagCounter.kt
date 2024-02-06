@@ -24,8 +24,9 @@ class FlagCounter(
      * TODO Cleanup this method
      */
     private fun postFlagDetails(flagDetails: List<FlagDetail>) {
+
         // Post Total Count Update
-        totalMessager.postMessage(formatTotalCountMessage(flagDetails.size)).fold(
+        totalMessager.postMessage(formatTotalCountMessage(flagDetails)).fold(
                 { errorMessager.postOrThrow("Failed to post total count message") },
                 {
                     val teamFlagMap = groupFlagsByOwner(flagDetails, teamMessagers.keys)
@@ -46,7 +47,7 @@ class FlagCounter(
                         errorMessager.postOrThrow(
                                 "Failed to send updates for ${
                                     failedTeamMessages.joinToString(separator = "\n") { it.id }
-                                }}"
+                                }"
                         )
                     }
                 }
@@ -76,11 +77,16 @@ class FlagCounter(
             this.postMessage(message).mapLeft { throw Exception(message) }
 
     /**
-     * Formats a [totalFlagCount] into a message to be sent by the messager
+     * Formats a message about the total flag count in the system based on the [teamFlags]
      */
-    private fun formatTotalCountMessage(totalFlagCount: Int): String {
+    private fun formatTotalCountMessage(teamFlags: List<FlagDetail>): String {
+        val totalFlagCount = teamFlags.size
         val comparisonMessage = FlagEquivalentMessageGenerator.getNearestNumberMessage(totalFlagCount)
-        return "There are currently $totalFlagCount flags in the system!\n$comparisonMessage"
+        return """
+            There are currently $totalFlagCount flags in the system!
+            $comparisonMessage
+            The median age of the flags in the system is ${teamFlags.getMedianAgeInDays()} days
+        """.trimIndent()
     }
 
     /**
@@ -90,12 +96,31 @@ class FlagCounter(
     private fun formatTeamMessage(teamFlags: List<FlagDetail>): String {
         // TODO Parameterize link url based on project/environment configuration
         return """Hey ${teamFlags.firstOrNull()?.owner?.name ?: "team"}!
-           |Launch Darkly thinks ${removableFlagCount(teamFlags)} of your ${teamFlags.size} flags could be ready for removal.
+           |LaunchDarkly thinks ${removableFlagCount(teamFlags)} of your ${teamFlags.size} flags could be ready for removal.
+           |The median age of the flags you maintain is ${teamFlags.getMedianAgeInDays()} days
            |Take a look ${flagReader.flagListUrl}""".trimMargin()
     }
 
     private fun removableFlagCount(flags: List<FlagDetail>): Int {
         return flags.filter { it.status == Status.REMOVABLE }.size
+    }
+
+    companion object {
+
+        private const val MILLISECONDS_IN_A_DAY = 1000 * 60 * 60 * 24
+        fun List<FlagDetail>.getMedianAgeInDays(): Long = this
+            .map { it.creationDate }
+            .sorted()
+            .let { creationDates ->
+                (System.currentTimeMillis() - creationDates.getMedian()) / MILLISECONDS_IN_A_DAY
+            }
+
+        private fun List<Long>.getMedian() =
+            if (this.size % 2 == 0) {
+                (this[this.size / 2] + this[this.size / 2 - 1]) / 2
+            } else {
+                this[this.size / 2]
+            }
     }
 }
 

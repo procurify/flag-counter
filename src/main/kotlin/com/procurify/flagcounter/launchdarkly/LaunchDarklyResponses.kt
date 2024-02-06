@@ -18,7 +18,8 @@ data class LDFlagDetail(
         @JsonProperty("_maintainer")
         val maintainer: LDFlagMaintainer,
         @JsonProperty("_links")
-        val links: LDFlagLinks
+        val links: LDFlagLinks,
+        val creationDate: Long
 )
 
 /**
