@@ -63,8 +63,10 @@ class FlagCounter(
             teamEmails: Set<TeamIdentifier>
     ): Map<TeamIdentifier, List<FlagDetail>> = flagDetails
             .fold(mapOf<TeamIdentifier, List<FlagDetail>>().toMutableMap()) { acc, flagDetail ->
-                val emailIdentifier = TeamIdentifier(flagDetail.owner.email)
-                acc[emailIdentifier] = acc[emailIdentifier].orEmpty() + flagDetail
+                flagDetail.owner?.let { owner ->
+                    val emailIdentifier = TeamIdentifier(owner.email)
+                    acc[emailIdentifier] = acc[emailIdentifier].orEmpty() + flagDetail
+                }
                 acc
             }
             .filter { teamEmails.contains(it.key) }
