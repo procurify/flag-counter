@@ -45,4 +45,23 @@ class FlagCounterTest {
 
         assertEquals(expectedMap, actualMap)
     }
+
+    @Test
+    fun `grouping skips flags with no owner`() {
+        val alpha = TeamIdentifier("alpha@test.com")
+        val owned = FlagDetail("ABC", Owner("", alpha.id), Status.ACTIVE)
+        val flagCounter = FlagCounter(
+                totalMessager = mockk(),
+                errorMessager = mockk(),
+                flagReader = mockk(),
+                teamMessagers = mapOf(alpha to mockk())
+        )
+
+        val actualMap = flagCounter.groupFlagsByOwner(
+                listOf(owned, FlagDetail("DEF", null, Status.REMOVABLE)),
+                setOf(alpha)
+        )
+
+        assertEquals(mapOf(alpha to listOf(owned)), actualMap)
+    }
 }

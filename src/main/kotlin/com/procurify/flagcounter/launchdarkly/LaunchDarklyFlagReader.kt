@@ -91,7 +91,7 @@ class LaunchDarklyFlagReader(
                 }?.let { status ->
                     FlagDetail(
                             key = flag.key,
-                            owner = Owner(flag.maintainer.firstName, flag.maintainer.email),
+                            owner = flag.maintainer?.let { Owner(it.firstName, it.email) },
                             status = if (status.name in listOf(LDStatus.LAUNCHED, LDStatus.INACTIVE)) {
                                 Status.REMOVABLE
                             } else {

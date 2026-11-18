@@ -87,4 +87,18 @@ class LaunchDarklyFlagReaderTest {
 
         assertEquals(expectedZipped, actualZipped)
     }
+
+    @Test
+    fun `flags without a maintainer deserialize and zip with a null owner`() {
+        val json = """{"totalCount":1,"items":[{"key":"orphan",
+            "_links":{"self":{"href":"/api/v2/flags/default/orphan"}}}]}"""
+        val flags = LaunchDarklyFlagReader.MAPPER.readValue(json, LDFlagResponse::class.java)
+        val statuses = LDFlagStatusResponse(listOf(
+                LDFlagStatus(LDStatus.LAUNCHED, LDStatusLinks(LDFlagReference("/api/v2/flags/default/orphan")))
+        ))
+
+        val actualZipped = LaunchDarklyFlagReader.zipFlagsAndStatuses(flags, statuses)
+
+        assertEquals(listOf(FlagDetail("orphan", null, Status.REMOVABLE)), actualZipped)
+    }
 }

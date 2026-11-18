@@ -55,7 +55,8 @@ class FlagCounter(
 
     /**
      * Groups the [FlagDetail] in a list as values to a map keyed by the provided [teamEmails]. If there are maintainers
-     * returned in details that are not in the provided [teamEmails], those flags are not added to the map
+     * returned in details that are not in the provided [teamEmails], or flags with no owner, those flags are not
+     * added to the map
      * TODO There is likely a cleaner way to do this without a mutable map
      */
     fun groupFlagsByOwner(
@@ -63,8 +64,10 @@ class FlagCounter(
             teamEmails: Set<TeamIdentifier>
     ): Map<TeamIdentifier, List<FlagDetail>> = flagDetails
             .fold(mapOf<TeamIdentifier, List<FlagDetail>>().toMutableMap()) { acc, flagDetail ->
-                val emailIdentifier = TeamIdentifier(flagDetail.owner.email)
-                acc[emailIdentifier] = acc[emailIdentifier].orEmpty() + flagDetail
+                flagDetail.owner?.let { owner ->
+                    val emailIdentifier = TeamIdentifier(owner.email)
+                    acc[emailIdentifier] = acc[emailIdentifier].orEmpty() + flagDetail
+                }
                 acc
             }
             .filter { teamEmails.contains(it.key) }
