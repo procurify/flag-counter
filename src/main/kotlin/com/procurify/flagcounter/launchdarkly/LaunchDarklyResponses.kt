@@ -15,8 +15,9 @@ data class LDFlagResponse(
  */
 data class LDFlagDetail(
         val key: String,
+        // LaunchDarkly omits _maintainer for flags with no member maintainer
         @JsonProperty("_maintainer")
-        val maintainer: LDFlagMaintainer,
+        val maintainer: LDFlagMaintainer?,
         @JsonProperty("_links")
         val links: LDFlagLinks
 )
