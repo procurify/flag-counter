@@ -54,23 +54,16 @@ class FlagCounter(
     }
 
     /**
-     * Groups the [FlagDetail] in a list as values to a map keyed by the provided [teamEmails]. If there are maintainers
-     * returned in details that are not in the provided [teamEmails], or flags with no owner, those flags are not
-     * added to the map
-     * TODO There is likely a cleaner way to do this without a mutable map
+     * Groups the [FlagDetail] in a list as values to a map keyed by the provided [teamEmails].
+     * Flags with no owner, or with an owner outside [teamEmails], are left out.
      */
     fun groupFlagsByOwner(
             flagDetails: List<FlagDetail>,
             teamEmails: Set<TeamIdentifier>
     ): Map<TeamIdentifier, List<FlagDetail>> = flagDetails
-            .fold(mapOf<TeamIdentifier, List<FlagDetail>>().toMutableMap()) { acc, flagDetail ->
-                flagDetail.owner?.let { owner ->
-                    val emailIdentifier = TeamIdentifier(owner.email)
-                    acc[emailIdentifier] = acc[emailIdentifier].orEmpty() + flagDetail
-                }
-                acc
-            }
-            .filter { teamEmails.contains(it.key) }
+            .mapNotNull { detail -> detail.owner?.let { TeamIdentifier(it.email) to detail } }
+            .groupBy({ it.first }, { it.second })
+            .filterKeys(teamEmails::contains)
 
     /**
      * Post a message to the [Messager] and throw an exception with the same [message] if the post fails
